@@ -13,7 +13,31 @@ export class AuthController {
     public async login(req: Request, res: Response): Promise<void> {
         const request: LoginRequest = req.body;
         const response = await this.authService.login(request);
+        if (!response) {
+            res.status(401).json({ message: 'Invalid username or password' });
+            return;
+        }
         res.status(200).json(response);
+    }
+
+    public async refreshToken(req: Request, res: Response): Promise<void> {
+        const { token } = req.body.token;
+        const response = await this.authService.refreshToken(token);
+        if (!response) {
+            res.status(401).json({ message: 'Invalid token' });
+            return;
+        }
+        res.status(200).json(response);
+    }
+
+    public async logout(req: Request, res: Response): Promise<void> {
+        const { token } = req.body.token;
+        const response = await this.authService.revokeToken(token);
+        if (!response) {
+            res.status(400).json({ message: 'Invalid token' });
+            return;
+        }
+        res.status(200).json({ message: 'Logout success' });
     }
 
     public async registerStaff(req: Request, res: Response) {

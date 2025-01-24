@@ -9,13 +9,41 @@ import { User } from '../entity/user.js';
 import { roleRepository } from '../repository/role.repository.js';
 import { authRepository } from '../repository/auth.repository.js';
 import { userRepository } from '../repository/user.repository.js';
+import { refreshTokenRepository } from '../repository/refresh-token.repository.js';
 import bcrypt from 'bcrypt';
+import { generateTokens, verifyToken } from '../../utils/jwt.util.js';
 
 @injectable()
 export class AuthServiceImpl implements AuthService {
     async login(request: LoginRequest): Promise<JwtResponse | null> {
-        console.log(request);
-        return null;
+        const auth = await authRepository.findOne({
+            where: { username: request.username },
+            relations: ['roles', 'user'],
+        });
+
+        if (!auth || !auth.password || !bcrypt.compareSync(request.password, auth.password)) {
+            return null;
+        }
+
+        return await generateTokens({ id: auth.id, username: auth.username }, auth.id as string);
+    }
+
+    async refreshToken(token: string): Promise<JwtResponse | null> {
+        const payload = await verifyToken(token, true);
+        if (!payload || typeof payload !== 'object') return null;
+
+        const { id, username } = payload as { id: string; username: string };
+        const refreshTokenEntity = await refreshTokenRepository.findOne({
+            where: { token, isRevoke: false },
+            relations: ['auth'],
+        });
+
+        if (!refreshTokenEntity) return null;
+        const tokens = await generateTokens({ id, username }, id);
+        refreshTokenEntity.isRevoke = true;
+        await refreshTokenRepository.save(refreshTokenEntity);
+
+        return tokens;
     }
 
     async me(): Promise<MeResponse | null> {
@@ -46,9 +74,7 @@ export class AuthServiceImpl implements AuthService {
             where: { username: request.username },
             relations: ['user', 'roles'],
         });
-        if (!output) return null;
-        if (!output.user) return null;
-        if (!output.roles) return null;
+        if (!output || !output.user || !output.roles) return null;
         return {
             id: output.id as string,
             firstname: output.user.firstname as string,
@@ -57,5 +83,18 @@ export class AuthServiceImpl implements AuthService {
             birthdate: output.user.birthdate as Date,
             roles: output.roles.map((role) => role.name) as string[],
         };
+    }
+
+    async revokeAllTokens(userId: string): Promise<void> {
+        await refreshTokenRepository.update({ auth: { id: userId } }, { isRevoke: true });
+    }
+
+    async revokeToken(token: string): Promise<boolean> {
+        const refreshTokenEntity = await refreshTokenRepository.findOne({ where: { token } });
+        if (!refreshTokenEntity) return false;
+
+        refreshTokenEntity.isRevoke = true;
+        await refreshTokenRepository.save(refreshTokenEntity);
+        return true;
     }
 }
