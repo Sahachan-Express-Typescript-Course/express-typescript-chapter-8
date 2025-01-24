@@ -22,19 +22,18 @@ export class AuthServiceImpl implements AuthService {
 
     async register(request: RegisterRequest): Promise<MeResponse | null> {
         console.log(request);
-        const userData : User = {
+        const userData: User = {
             firstname: request.firstname,
             lastname: request.lastname,
             birthdate: request.birthdate,
-        }
+        };
         await userRepository.save(userData);
-        const authData : Auth = {
+        const authData: Auth = {
             username: request.username,
             password: request.password,
             user: userData,
-        }
+        };
         await authRepository.save(authData);
         return null;
     }
-
 }

@@ -10,7 +10,7 @@ export class User extends BaseEntity {
     @Column()
     lastname?: string;
 
-    @Column({ type: 'date'})
+    @Column({ type: 'date' })
     birthdate?: Date;
 
     @OneToOne(() => Auth, (auth) => auth.user)
