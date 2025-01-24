@@ -16,10 +16,18 @@ export class AuthController {
         res.status(200).json(response);
     }
 
-    public async register(req: Request, res: Response) {
+    public async registerStaff(req: Request, res: Response) {
         const request: RegisterRequest = req.body;
-        const response = await this.authService.register(request);
-        res.status(200).json(response);
+        const response = await this.authService.register(request, 'STAFF');
+        const me: ResponseDto<MeResponse> = new ResponseDto({ data: response });
+        res.status(200).json(me);
+    }
+
+    public async registerMember(req: Request, res: Response) {
+        const request: RegisterRequest = req.body;
+        const response = await this.authService.register(request, 'MEMBER');
+        const me: ResponseDto<MeResponse> = new ResponseDto({ data: response });
+        res.status(200).json(me);
     }
 
     public async me(req: Request, res: Response) {

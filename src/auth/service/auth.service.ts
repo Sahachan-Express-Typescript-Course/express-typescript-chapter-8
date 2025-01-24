@@ -5,6 +5,6 @@ import { MeResponse } from '../payload/response/me.response.js';
 
 export interface AuthService {
     login(request: LoginRequest): Promise<JwtResponse | null>;
-    register(request: RegisterRequest): Promise<MeResponse | null>;
+    register(request: RegisterRequest, assignRole: string): Promise<MeResponse | null>;
     me(): Promise<MeResponse | null>;
 }

@@ -4,4 +4,5 @@ export interface MeResponse {
     lastname: string;
     username: string;
     birthdate: Date;
+    roles: string[];
 }
