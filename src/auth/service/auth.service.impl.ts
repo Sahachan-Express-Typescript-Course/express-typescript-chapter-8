@@ -11,7 +11,8 @@ import { authRepository } from '../repository/auth.repository.js';
 import { userRepository } from '../repository/user.repository.js';
 import { refreshTokenRepository } from '../repository/refresh-token.repository.js';
 import bcrypt from 'bcrypt';
-import { generateTokens, verifyToken } from '../../utils/jwt.util.js';
+import { generateAccessToken, generateTokens, verifyToken } from '../../utils/jwt.util.js';
+import { v4 as uuidv4 } from 'uuid';
 
 @injectable()
 export class AuthServiceImpl implements AuthService {
@@ -24,13 +25,13 @@ export class AuthServiceImpl implements AuthService {
         if (!auth || !auth.password || !bcrypt.compareSync(request.password, auth.password)) {
             return null;
         }
-
+        await this.revokeAllTokens(auth.id as string);
         return await generateTokens({ id: auth.id, username: auth.username }, auth.id as string);
     }
 
-    async refreshToken(token: string): Promise<JwtResponse | null> {
+    async refreshToken(token: string): Promise<JwtResponse | null | number> {
         const payload = await verifyToken(token, true);
-        if (!payload || typeof payload !== 'object') return null;
+        if (!payload) return 1;
 
         const { id, username } = payload as { id: string; username: string };
         const refreshTokenEntity = await refreshTokenRepository.findOne({
@@ -38,16 +39,38 @@ export class AuthServiceImpl implements AuthService {
             relations: ['auth'],
         });
 
-        if (!refreshTokenEntity) return null;
-        const tokens = await generateTokens({ id, username }, id);
-        refreshTokenEntity.isRevoke = true;
+        if (!refreshTokenEntity) return 2;
+
+        if (refreshTokenEntity.expireAt && refreshTokenEntity.expireAt < new Date()) {
+            refreshTokenEntity.isRevoke = true;
+            await refreshTokenRepository.save(refreshTokenEntity);
+            return 3;
+        }
+
+        const newAccessToken = generateAccessToken({ id, username });
+        const newRefreshToken = uuidv4();
+        refreshTokenEntity.token = newRefreshToken;
         await refreshTokenRepository.save(refreshTokenEntity);
 
-        return tokens;
+        return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+
     }
 
-    async me(): Promise<MeResponse | null> {
-        return null;
+    async me(id: string): Promise<MeResponse | null> {
+        const auth = await authRepository.findOne({
+            where: { id },
+            relations: ['roles', 'user'],
+        });
+
+        if (!auth || !auth.user || !auth.roles) return null;
+        return {
+            id: auth.id as string,
+            firstname: auth.user.firstname as string,
+            lastname: auth.user.lastname as string,
+            username: auth.username as string,
+            birthdate: auth.user.birthdate as Date,
+            roles: auth.roles.map((role) => role.name) as string[],
+        };
     }
 
     async register(request: RegisterRequest, assignRole: string): Promise<MeResponse | null> {

@@ -5,9 +5,9 @@ import { MeResponse } from '../payload/response/me.response.js';
 
 export interface AuthService {
     login(request: LoginRequest): Promise<JwtResponse | null>;
-    refreshToken(token: string): Promise<JwtResponse | null>;
+    refreshToken(token: string): Promise<JwtResponse | null | number>;
     revokeToken(token: string): Promise<boolean>;
     revokeAllTokens(authId: string): Promise<void>;
     register(request: RegisterRequest, assignRole: string): Promise<MeResponse | null>;
-    me(): Promise<MeResponse | null>;
+    me(id: string): Promise<MeResponse | null>;
 }

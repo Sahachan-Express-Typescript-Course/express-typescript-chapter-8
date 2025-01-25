@@ -1,22 +1,32 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET as string;
+const ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET as string;
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace Express {
+        interface Request {
+            user?: {id: string} | JwtPayload;
+        }
+    }
+}
+
+export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({ message: 'Unauthorized' });
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
     }
 
-    jwt.verify(token, ACCESS_TOKEN_SECRET, (err, user) => {
-        console.log(user);
+    jwt.verify(token, ACCESS_TOKEN_SECRET, (err, payload) => {
         if (err) {
-            return res.status(403).json({ message: 'Forbidden' });
+            res.status(403).json({ message: 'Forbidden' });
+            return ;
         }
-        // req.user = user as {id: string; username: string}; // Attach the user to the request object
+        req.user = payload as JwtPayload;
         next();
     });
 };
