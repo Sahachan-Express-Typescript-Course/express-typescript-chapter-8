@@ -23,7 +23,7 @@ const generateTokens = async (payload: object, userId: string): Promise<JwtRespo
 
 const generateAccessToken = (payload: object): string => {
     return jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES_IN });
-}
+};
 
 const verifyToken = async (token: string, isRefreshToken: boolean = false): Promise<JwtPayload | null | string> => {
     try {

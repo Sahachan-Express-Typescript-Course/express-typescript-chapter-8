@@ -53,7 +53,6 @@ export class AuthServiceImpl implements AuthService {
         await refreshTokenRepository.save(refreshTokenEntity);
 
         return { accessToken: newAccessToken, refreshToken: newRefreshToken };
-
     }
 
     async me(id: string): Promise<MeResponse | null> {

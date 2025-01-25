@@ -9,7 +9,7 @@ import { JwtResponse } from '../payload/response/jwt.response.js';
 
 @injectable()
 export class AuthController {
-    constructor(@inject('AuthService') private authService: AuthService) { }
+    constructor(@inject('AuthService') private authService: AuthService) {}
 
     public async login(req: Request, res: Response): Promise<void> {
         const request: LoginRequest = req.body;

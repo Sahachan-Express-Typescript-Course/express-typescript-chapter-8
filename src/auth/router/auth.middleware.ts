@@ -7,7 +7,7 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Express {
         interface Request {
-            user?: {id: string} | JwtPayload;
+            user?: { id: string } | JwtPayload;
         }
     }
 }
@@ -24,7 +24,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     jwt.verify(token, ACCESS_TOKEN_SECRET, (err, payload) => {
         if (err) {
             res.status(403).json({ message: 'Forbidden' });
-            return ;
+            return;
         }
         req.user = payload as JwtPayload;
         next();
