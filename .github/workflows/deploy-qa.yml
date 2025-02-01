@@ -1,0 +1,67 @@
+name: Deploy to QA and Test server
+
+on:
+    push:
+        branches:
+            - qa
+
+jobs:
+    build-image-and-deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            # Step 1: Checkout the code
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            # Step 2: Set up Node.js environment
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 22
+
+            # Step 3: Write .env.dev file dynamically from GitHub Secret
+            - name: Create .env file
+              run: |
+                  echo ${{ secrets.QA_ENV_FILE }} | base64 --decode > .env.qa
+
+            - name: Set up QEMU
+              uses: docker/setup-qemu-action@v3
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Log in to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ secrets.DOCKER_USERNAME }}
+                  password: ${{ secrets.DOCKER_TOKEN }}
+
+            - name: Build and push
+              uses: docker/build-push-action@v6
+              with:
+                  file: ./deploy_qa/Dockerfile
+                  context: .
+                  push: true
+                  tags: ${{ secrets.DOCKER_USERNAME }}/dev-ts-ex-ch8:qa
+
+            - name: Deploy to server
+              env:
+                  SSH_PRIVATE_KEY: ${{ secrets.SERVER_PRIVATE_KEY }}
+                  HOST: ${{ secrets.SERVER_HOST }}
+                  USERNAME: ${{ secrets.SERVER_USER }}
+              run: |
+                  echo "$SSH_PRIVATE_KEY" > key.pem && chmod 600 key.pem
+
+                  ssh -o StrictHostKeyChecking=no -i key.pem $USERNAME@$HOST '
+                  mkdir -p ~/backend_app_ch8_qa
+                  '
+
+                  scp -i key.pem -o StrictHostKeyChecking=no ./deploy_qa/compose.yml $USERNAME@$HOST:~/backend_app_qa/compose.yml
+
+                  ssh -o StrictHostKeyChecking=no -i key.pem $USERNAME@$HOST '
+                  cd ~/backend_app_qa
+                  docker compose down
+                  docker compose pull
+                  docker compose up -d
+                  '
