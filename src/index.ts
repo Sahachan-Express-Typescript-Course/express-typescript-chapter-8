@@ -5,6 +5,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import 'reflect-metadata';
 import './config/container.js';
+import './config/firebase.config.js';
 import { ResponseDto } from './shared/base.response.js';
 import { container } from 'tsyringe';
 import { LoadData } from './utils/reload-data.js';
@@ -13,6 +14,7 @@ import { MovieReloadData } from './utils/reload-movie-data.js';
 // feature
 import { authRouter } from './auth/router/auth.router.js';
 import { movieRouter } from './movie/router/movie.router.js';
+import { mediaRouter } from './media/router/media.router.js';
 
 // environment
 const PORT = process.env.PORT || 8080;
@@ -48,6 +50,7 @@ app.get('/', (req: Request, res: Response) => {
 // auth feature route
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/movie', movieRouter);
+app.use('/api/v1/media', mediaRouter);
 
 // global error handler
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
