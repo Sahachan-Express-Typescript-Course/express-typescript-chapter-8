@@ -6,7 +6,7 @@ on:
             - dev
 
 jobs:
-    build-image-and-deploy:
+    deploy-image-on-devlopment:
         runs-on: ubuntu-latest
 
         steps:

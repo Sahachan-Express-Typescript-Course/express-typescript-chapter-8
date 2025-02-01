@@ -6,7 +6,7 @@ on:
             - qa
 
 jobs:
-    build-image-and-deploy:
+    deploy-image-on-qa:
         runs-on: ubuntu-latest
 
         steps:
