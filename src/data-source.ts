@@ -4,6 +4,8 @@ import { Auth } from './auth/entity/auth.js';
 import { RefreshToken } from './auth/entity/refresh-token.js';
 import { Role } from './auth/entity/role.js';
 import { User } from './auth/entity/user.js';
+import { Movie } from './movie/entity/movie.model.js';
+import { Comment } from './movie/entity/comment.model.js';
 
 export const AppDataSource = new DataSource({
     type: 'postgres',
@@ -14,6 +16,6 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: process.env.RESET_DB === 'true',
     logging: false,
-    entities: [Auth, RefreshToken, Role, User],
-    migrations: [Auth, RefreshToken, Role, User],
+    entities: [Auth, RefreshToken, Role, User, Movie, Comment],
+    migrations: [Auth, RefreshToken, Role, User, Movie, Comment],
 });
