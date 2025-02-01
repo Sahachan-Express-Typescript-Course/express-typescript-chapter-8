@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { AuthController } from '../controller/auth.controller.js';
 import { container } from 'tsyringe';
 import { asyncHandler } from '../../utils/handler.global.js';
-import { authenticateToken } from './auth.middleware.js';
+import { authenticateToken } from '../../middleware/auth.middleware.js';
 
 const authRouter = Router();
 const authController = container.resolve(AuthController);

@@ -11,7 +11,7 @@ import bcrypt from 'bcrypt';
 @injectable()
 export class LoadData {
     public async load() {
-        if (process.env.RELOAD_DATA === 'true') {
+        if (process.env.RELOAD_AUTH_DATA === 'true') {
             await refreshTokenRepository.delete({});
             await roleRepository.delete({});
             await userRepository.delete({});
