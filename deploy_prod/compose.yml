@@ -2,6 +2,6 @@ version: '3.5'
 
 services:
     backend:
-        image: oat431/dev-ts-ex-ch8:qa
+        image: oat431/dev-ts-ex-ch8:latest
         ports:
-            - '8082:8080'
+            - '8085:8080'

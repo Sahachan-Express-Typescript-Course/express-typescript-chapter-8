@@ -57,7 +57,7 @@ jobs:
                   mkdir -p ~/backend_app_ch8_qa
                   '
 
-                  scp -i key.pem -o StrictHostKeyChecking=no ./deploy_qa/compose-qa.yml $USERNAME@$HOST:~/backend_app_qa/compose.yml
+                  scp -i key.pem -o StrictHostKeyChecking=no ./deploy_qa/compose.yml $USERNAME@$HOST:~/backend_app_qa/compose.yml
 
                   ssh -o StrictHostKeyChecking=no -i key.pem $USERNAME@$HOST '
                   cd ~/backend_app_qa
