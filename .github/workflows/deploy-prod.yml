@@ -6,7 +6,7 @@ on:
             - prod
 
 jobs:
-    build-image-and-deploy:
+    deploy-image-on-production:
         runs-on: ubuntu-latest
 
         steps:
@@ -43,7 +43,7 @@ jobs:
                   file: ./deploy_prod/Dockerfile
                   context: .
                   push: true
-                  tags: ${{ secrets.DOCKER_USERNAME }}/dev-ts-ex-ch7:latest
+                  tags: ${{ secrets.DOCKER_USERNAME }}/dev-ts-ex-ch8:latest
 
             - name: Deploy to server
               env:
