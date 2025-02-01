@@ -21,15 +21,17 @@ export const adminGuard = (req: Request, res: Response, next: NextFunction): voi
             return;
         }
         req.user = payload as JwtPayload;
-        authService.me(req.user.id).then((user) => {
-            if (user?.roles.includes('ADMIN')) {
-                next();
-            } else {
-                res.status(403).json({ message: 'you are not admin' });
-            }
-        }).catch((err) => {
-            res.status(500).json({ message: err.message });
-        });
+        authService
+            .me(req.user.id)
+            .then((user) => {
+                if (user?.roles.includes('ADMIN')) {
+                    next();
+                } else {
+                    res.status(403).json({ message: 'you are not admin' });
+                }
+            })
+            .catch((err) => {
+                res.status(500).json({ message: err.message });
+            });
     });
 };
-
