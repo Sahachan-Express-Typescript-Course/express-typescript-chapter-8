@@ -1,0 +1,7 @@
+version: '3.5'
+
+services:
+    backend:
+        image: oat431/dev-ts-ex-ch8:dev
+        ports:
+            - '8080:8080'

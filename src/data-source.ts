@@ -17,5 +17,5 @@ export const AppDataSource = new DataSource({
     synchronize: process.env.RESET_DB === 'true',
     logging: false,
     entities: [Auth, RefreshToken, Role, User, Movie, Comment],
-    migrations: [Auth, RefreshToken, Role, User, Movie, Comment],
+    // migrations: [Auth, RefreshToken, Role, User, Movie, Comment],
 });
