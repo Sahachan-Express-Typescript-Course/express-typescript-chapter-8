@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { MovieController } from '../controller/movie.controller.js';
 import { adminGuard } from '../../middleware/admin.middleware.js';
 import { asyncHandler } from '../../utils/handler.global.js';
+import { memberGuard } from '../../middleware/member.middleware.js';
 
 const movieRouter = Router();
 const movieController = new MovieController();
@@ -17,7 +18,7 @@ movieRouter.put('/:id', movieController.updateMovie);
 movieRouter.delete('/:id', movieController.deleteMovie);
 
 // comment feature
-movieRouter.post('/:id/comment', movieController.addComment);
+movieRouter.post('/:id/comment', memberGuard, asyncHandler(movieController.addComment));
 movieRouter.get('/:id/comment/:comment_id', movieController.getCommentById);
 movieRouter.put('/:id/comment/:comment_id', movieController.updateComment);
 movieRouter.delete('/:id/comment/:comment_id', movieController.deleteComment);
