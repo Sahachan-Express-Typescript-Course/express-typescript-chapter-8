@@ -27,7 +27,7 @@ export const memberGuard = (req: Request, res: Response, next: NextFunction): vo
                 if (user?.roles.includes('MEMBER')) {
                     next();
                 } else {
-                    res.status(403).json({ message: 'you are not admin' });
+                    res.status(403).json({ message: 'you are not member' });
                 }
             })
             .catch((err) => {
