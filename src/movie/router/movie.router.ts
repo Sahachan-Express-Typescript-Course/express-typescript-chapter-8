@@ -2,7 +2,10 @@ import { Router } from 'express';
 import { MovieController } from '../controller/movie.controller.js';
 import { adminGuard } from '../../middleware/admin.middleware.js';
 import { asyncHandler } from '../../utils/handler.global.js';
+
 import { memberGuard } from '../../middleware/member.middleware.js';
+import { staffGuard } from '../../middleware/staff.middleware.js';
+
 
 const movieRouter = Router();
 const movieController = new MovieController();
@@ -24,19 +27,14 @@ movieRouter.put('/:id/comment/:comment_id', movieController.updateComment);
 movieRouter.delete('/:id/comment/:comment_id', movieController.deleteComment);
 
 // advance feature
-movieRouter.get('/:id/avg', movieController.getAvgRating);
-movieRouter.get('/summary/comment', movieController.getTotalCommentFromEachMovie);
-movieRouter.get('/summary/rating', movieController.getMovieRateSummary);
-movieRouter.get('/summary/search', movieController.searchMovie);
+movieRouter.get('/:id/avg', staffGuard, asyncHandler(movieController.getAvgRating));
+movieRouter.get('/summary/comment', staffGuard, asyncHandler(movieController.getTotalCommentFromEachMovie));
+movieRouter.get('/summary/rating', staffGuard, asyncHandler(movieController.getMovieRateSummary));
+movieRouter.get('/summary/search', staffGuard, asyncHandler(movieController.searchMovie));
 
 //sorting by name
 movieRouter.get('/sorting/sort-by', movieController.sortedMoviesbyname);
 
-// Advanced features
-movieRouter.get('/:id/avg', movieController.getAvgRating);
-movieRouter.get('/summary/comment', movieController.getTotalCommentFromEachMovie);
-movieRouter.get('/summary/rating', movieController.getMovieRateSummary);
-movieRouter.get('/summary/search', movieController.searchMovie);
 
 // New feature: Filter movies by release date
 movieRouter.get('/filter/release', movieController.searchMoviesByReleaseDate);
